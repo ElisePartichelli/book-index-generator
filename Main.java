@@ -3,82 +3,81 @@ import java.util.Scanner;
 
 
 /**
- * Classe que inicializa a execução da aplicacao.
+ * Class that starts the application.
  * @author Isabel H. Manssour
  */
 public class Main {
-    private static String[] options = {"1- Exibir todo o indice remissivo (em ordem alfabetica)",
-                        "2- Exibir o percentual de stopwords do texto (quando % do texto eh formado por stopwords)",
-                        "3- Encontrar a palavra mais frequente, isto é, com maior numero de ocorrencias",
-                        "4- Pesquisar uma palavra",
-                        "5- Encerrar o programa"};
+    private static String[] options = {"1- Show the whole index (in alphabetical order)",
+                        "2- Show the percentage of stopwords in the text",
+                        "3- Find the most frequent word, that is, the one with the most occurrences",
+                        "4- Search for a word",
+                        "5- Exit"};
 
-    private static int countword = 0;
+    private static final int LINES_PER_PAGE = 40;
+    private static int wordCount = 0;
     public static void main(String[] args) throws Exception {
-    
-    Scanner readMenu = new Scanner(System.in);
-    int nLinha = 0;
-    int nPagina = 1;
 
-    
-    ArquivoTexto arquivo = new ArquivoTexto(); // objeto que gerencia o arquivo
-    LinhaTexto linha = new LinhaTexto(); // objeto que gerencia uma linha
+    Scanner readMenu = new Scanner(System.in);
+    int lineCount = 0;
+    int pageNumber = 1;
+
+
+    TextFile file = new TextFile(); // object that manages the file
+    TextLine textLine = new TextLine(); // object that manages a line
     String l;
 
-    StopwordList stopwords = stopwordsGenerate("StopWords-EN.txt");
-    ListaOrdenadaDePalavras lista = new ListaOrdenadaDePalavras(stopwords); //A lista em si.
+    StopwordList stopwords = loadStopwords("StopWords-EN.txt");
+    SortedWordList wordList = new SortedWordList(stopwords); // the index itself
 
-    System.out.println("Digite o nome arquivo texto a ser executado: ");
-    arquivo.open("textos/"+ readMenu.nextLine());
-    //arquivo.open(args[0]); // use esta linha para ler o nome do arquivo pela linha de comando
-    do  // laco que passa em cada linha do arquivo
+    System.out.println("Enter the name of the text file to process: ");
+    file.open("texts/"+ readMenu.nextLine());
+    //file.open(args[0]); // use this line to read the file name from the command line
+    do  // loop over each line of the file
     {
-        l = arquivo.getNextLine();
-        if (l==null) // acabou o arquivo?
+        l = file.getNextLine();
+        if (l==null) // end of the file?
            break;
-        nLinha++; // conta mais uma linha lida do arquivo
-        if (nLinha == 40) // chegou ao fim da pagina?
-        {
-            nLinha = 0;
-            nPagina++;
-        }
-        //System.out.println("Linha " + nLinha + ":");
+        lineCount++; // count one more line read from the file
 
-        linha.setLine(l); // define o texto da linha
-        do // laco que passa em cada palavra de uma linha
+        textLine.setLine(l); // set the text of the line
+        do // loop over each word of a line
         {
-            String palavra = linha.getNextWord(); // obtem a proxima palavra da linha
-            if (palavra == null)// acabou a linha
+            String word = textLine.getNextWord(); // get the next word of the line
+            if (word == null)// end of the line
             {
                 break;
             }
-            countword++;
-            lista.add(palavra, nPagina);
-            //System.out.println("-" + palavra + "-");
+            wordCount++;
+            wordList.add(word, pageNumber);
          } while (true);
 
+        if (lineCount == LINES_PER_PAGE) // reached the end of the page?
+        {
+            lineCount = 0;
+            pageNumber++;
+        }
+
     } while (true);
-    
 
 
-    menu(readMenu, lista);
 
-    arquivo.close();
+    menu(readMenu, wordList);
+
+    file.close();
     readMenu.close();
-    //System.out.println(lista.toString());
     }
 
-    private static void menu(Scanner scanner, ListaOrdenadaDePalavras lista){
+    private static void menu(Scanner scanner, SortedWordList wordList){
         int option = 0;
         while (option!=5){
             printMenu();
             try {
                 option = scanner.nextInt();
                 switch (option){
-                    case 1: System.out.println(lista.toString()); break;
-                    case 2: System.out.println(lista.getStopwordsNum() + " stopwords no texto, de um total de " +  countword + " palavras. Represtando " + (double)lista.getStopwordsNum()/(double)countword*100 + "% do texto"); break;
-                    case 3: System.out.println(lista.getMaiorOcorrencia()); break;
-                    case 4: buscaPalavra(scanner, lista);break;
+                    case 1: System.out.println(wordList.toString()); break;
+                    case 2: printStopwordPercentage(wordList); break;
+                    case 3: System.out.println(wordList.getMostFrequent()); break;
+                    case 4: searchWord(scanner, wordList);break;
                     case 5: return;
                 }
             }
@@ -89,32 +88,43 @@ public class Main {
         }
     }
 
-    private static void buscaPalavra(Scanner scanner, ListaOrdenadaDePalavras lista) {
-        System.out.println("Digite a palavra a ser buscada na lista: ");
-        System.out.println(lista.getByWord(scanner.next()));
+    private static void printStopwordPercentage(SortedWordList wordList) {
+        if (wordCount == 0) {
+            System.out.println("The text has no words.");
+            return;
+        }
+        double percentage = (double)wordList.getStopwordCount()/(double)wordCount*100;
+        System.out.printf("%d stopwords in the text, out of a total of %d words. They represent %.2f%% of the text%n",
+                          wordList.getStopwordCount(), wordCount, percentage);
+    }
+
+    private static void searchWord(Scanner scanner, SortedWordList wordList) {
+        System.out.println("Enter the word to search for: ");
+        System.out.println(wordList.getByWord(scanner.next()));
     }
 
     private static void printMenu(){
         for (String option : options){
             System.out.println(option);
         }
-        System.out.print("Escolha sua opcao: ");
+        System.out.print("Choose an option: ");
     }
 
-    private static StopwordList stopwordsGenerate(String nomeArquivo) throws Exception{
-        ArquivoTexto stopWordsarquivo = new ArquivoTexto(); // objeto que gerencia o arquivo
-        System.out.println("textos/"+nomeArquivo);
-        stopWordsarquivo.open("textos/"+nomeArquivo); //O programa preve que todos os arquivos de texto estão na pasta texto
-        String l = stopWordsarquivo.getNextLine();
+    private static StopwordList loadStopwords(String fileName) throws Exception{
+        TextFile stopwordsFile = new TextFile(); // object that manages the file
+        stopwordsFile.open("texts/"+fileName); // all text files are expected to be in the texts folder
+        String l = stopwordsFile.getNextLine();
         StopwordList stopwordList = new StopwordList();
 
         while(l!=null){
-            stopwordList.add(l); //Em uma lista de stopwords cada linha é uma palavra
-            l = stopWordsarquivo.getNextLine();
+            String stopword = l.trim().toLowerCase();
+            if (!stopword.isEmpty())
+                stopwordList.add(stopword); // in a stopword list, each line is one word
+            l = stopwordsFile.getNextLine();
         }
+        stopwordsFile.close();
 
     return stopwordList;
     }
 
 }
-

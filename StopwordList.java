@@ -1,109 +1,123 @@
 public class StopwordList {
-        
-        // Classe interna Node
+
+        // Inner class Node
         private class Node {
             public String stopword;
-            public Node next;    
+            public Node next;
             public Node(String stopword) {
                 this.stopword = stopword;
                 next = null;
             }
         }
-        
-        // Atributos
+
+        // Attributes
         private Node head;
         private Node tail;
         private int count;
-    
-        // Metodos 
+
+        // Methods
         public StopwordList() {
             head = null;
             tail = null;
             count = 0;
-            
+
         }
-        
+
         /**
-         * Retorna true se a lista nao contem elementos.
-         * @return true se a lista nao contem elementos
+         * Returns true if the list contains no elements.
+         * @return true if the list contains no elements
          */
         public boolean isEmpty() {
             return (head == null);
-        }   
-        
+        }
+
         /**
-         * Retorna o numero de elementos da lista.
-         * @return o numero de elementos da lista
+         * Returns the number of elements in the list.
+         * @return the number of elements in the list
          */
         public int size() {
             return count;
-        }  
-        
+        }
+
         /**
-         * Esvazia a lista
+         * Empties the list
          */
         public void clear() {
             head = null;
             tail = null;
             count = 0;
         }
-    
+
+        /**
+         * Adds a stopword to the end of the list, if it has not been added yet.
+         * @param stopword the stopword to be added
+         * @return true if the stopword was added, and false otherwise
+         */
         public boolean add(String stopword)  {
             if(count == 0){
-                Node novaOcorrencia = new Node(stopword);
-                this.tail = novaOcorrencia;
-                this.head = novaOcorrencia;
+                Node newNode = new Node(stopword);
+                this.tail = newNode;
+                this.head = newNode;
                 count++;
+                return true;
             }
             if(contains(stopword)){
                 return false;
             }
-            
-            Node novaOcorrencia = new Node(stopword);
-            this.tail.next = novaOcorrencia;
-            this.tail = novaOcorrencia;
+
+            Node newNode = new Node(stopword);
+            this.tail.next = newNode;
+            this.tail = newNode;
             count++;
             return true;
-        }  
-        
+        }
+
         /**
-         * Retorna o elemento de uma determinada posicao da lista.
-         * @param index a posição da lista
-         * @return o elemento da posicao especificada
-         * @throws IndexOutOfBoundsException se (index < 0 || index >= size())
-         */    
+         * Returns the element at a given position of the list.
+         * @param index the position in the list
+         * @return the element at the specified position
+         * @throws IndexOutOfBoundsException if (index < 0 || index >= size())
+         */
         public String get(int index) {
             if (index<0 || index >= size()) {
-                throw new IndexOutOfBoundsException(); 
+                throw new IndexOutOfBoundsException();
             }
-            Node atual = head;
+            Node current = head;
             while (index>0){
-                atual = atual.next;
+                current = current.next;
                 index--;
             }
-            return atual.stopword;
+            return current.stopword;
         }
-     
+
         /**
-         * Retorna true se a lista contem o numero de pagina passado
-         * por parametro.
-         * @param stopword o elemento a ser procurado
-         * @return true se a lista contem o elemento especificado
+         * Returns true if the list contains the stopword received
+         * as parameter.
+         * @param stopword the element to search for
+         * @return true if the list contains the specified element
          */
         public boolean contains(String stopword) {
-            Node atual = head;
-            while(atual != null){
-                if (atual.stopword.equals(stopword)) {
+            Node current = head;
+            while(current != null){
+                if (current.stopword.equals(stopword)) {
                     return true;
                 }
-                atual = atual.next;
+                current = current.next;
             }
             return false;
-        }    
-        
+        }
+
         @Override
         public String toString() {
-            return "Todo: Implement toString";
+            String result = "[";
+            Node current = head;
+            while(current != null){
+                result += current.stopword;
+                if (current.next != null)
+                    result += ", ";
+                current = current.next;
+            }
+            return result + "]";
         }
-    
+
 }

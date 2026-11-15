@@ -1,0 +1,47 @@
+A linked list is one of the simplest data structures in computer science.
+Each node in a linked list stores a value and a reference to the next node.
+The first node is called the head, and the last node is called the tail.
+Unlike an array, a linked list does not need a contiguous block of memory.
+New nodes can be added to a linked list without moving the existing nodes.
+Inserting a node at the head of a list takes constant time.
+Inserting a node at the tail is also fast when the list keeps a tail reference.
+Searching for a value, however, requires visiting the nodes one by one.
+For this reason, searching a linked list takes linear time.
+A sorted linked list keeps its nodes in order at all times.
+To insert a value in a sorted list, we walk the list until we find its position.
+Then we connect the new node between the previous node and the current node.
+Sorted lists are useful when the data must always be printed in order.
+An index at the end of a book is a good example of sorted data.
+Each word in the index points to the pages where the word appears.
+Building an index by hand is slow and it is easy to make mistakes.
+A program can read the text of a book and build the index automatically.
+The program reads the book one line at a time.
+Each line is split into words, and punctuation is removed from each word.
+Every word is converted to lowercase so that the same word is counted once.
+Some words appear in almost every sentence and carry little meaning.
+These words are called stopwords, and the program ignores them.
+Examples of stopwords are words like the, and, of, and to.
+The remaining words are added to a sorted list of words.
+Each word in the list keeps its own list of page numbers.
+When a word appears again on a new page, the page is added to its list.
+When a word appears again on the same page, nothing changes.
+In this program, a page has a fixed number of lines.
+After the last line of a page, the page counter moves to the next page.
+At the end, the user can see the complete index in alphabetical order.
+The user can also see how much of the text is made of stopwords.
+Another option shows the word with the largest number of pages.
+Finally, the user can search for a single word in the index.
+If the word is in the index, the program shows its list of pages.
+If the word is not in the index, the program shows a short message.
+This small project shows how linked lists can solve a real problem.
+It also shows that simple structures can be combined into useful tools.
+A list of words, a list of pages, and a list of stopwords work together.
+Each structure has one clear responsibility in the program.
+This makes the code easier to read, test, and change.
+The second page of this sample text starts here.
+Words that appeared on the first page will now receive a second page number.
+For example, the word list should now point to both pages.
+The word index should also point to both pages of this text.
+A word that appears only here, such as dictionary, will have only one page.
+Try searching for the word node to see which pages it appears on.
+Then try searching for the word dictionary to compare the results.
